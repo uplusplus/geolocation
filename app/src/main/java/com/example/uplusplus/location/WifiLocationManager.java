@@ -43,7 +43,25 @@ public class WifiLocationManager {
     public List<ScanResult> getWifiList(){
         return wifiManager.getScanResults();
     }
+/*
+    bssid=08:10:77:f9:2a:1b;freq=2472;level=-44;flags=43;ssid=Netcore_2_4G;
+    bssid=94:77:2b:27:e5:0c;freq=2412;level=-69;flags=11;ssid=lady_x;
+    bssid=ec:26:ca:a5:f4:65;freq=2462;level=-75;flags=11;ssid=swj1993;
+    bssid=ec:26:ca:34:64:90;freq=2462;level=-84;flags=11;ssid=TP-LINK88888;
+    bssid=8e:25:93:ac:91:fe;freq=2412;level=-91;flags=11;ssid=dongruitianyou2;
 
+     holder.put: {
+     "version":"1.1.0",
+     "host":"maps.google.com",
+     "address_language":"zh_CN",
+     "request_address":true,
+     "wifi_towers":[
+        {"mac_address":"08:10:77:f9:2a:1b","ssid":"Netcore_2_4G","signal_strength":-42},
+        {"mac_address":"94:77:2b:27:e5:0c","ssid":"lady_x","signal_strength":-70},
+        {"mac_address":"ec:26:ca:a5:f4:65","ssid":"swj1993","signal_strength":-75},
+        {"mac_address":"ec:26:ca:34:64:90","ssid":"TP-LINK88888","signal_strength":-69},
+        {"mac_address":"c0:61:18:92:f8:a6","ssid":"TP-LINK_F8A6","signal_strength":-85}]}
+* */
     public String getLocationWifi(){
 
         /** 采用Android默认的HttpClient */
@@ -67,7 +85,6 @@ public class WifiLocationManager {
                 tower.put("signal_strength", wifiList.get(i).level);
                 towerarray.put(tower);
             }
-
             holder.put("wifi_towers", towerarray);
             Util.logd("holder.put: " + holder.toString());
 
