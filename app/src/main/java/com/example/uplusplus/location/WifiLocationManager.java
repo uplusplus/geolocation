@@ -16,6 +16,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.BroadcastReceiver;
@@ -62,6 +63,23 @@ public class WifiLocationManager {
         {"mac_address":"ec:26:ca:34:64:90","ssid":"TP-LINK88888","signal_strength":-69},
         {"mac_address":"c0:61:18:92:f8:a6","ssid":"TP-LINK_F8A6","signal_strength":-85}]}
 * */
+
+    public String getWifiInfo(){
+            List<ScanResult> wifiList = getWifiList();
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < wifiList.size(); i++) {
+                JSONObject tower = new JSONObject();
+                try {
+                    tower.put("mac_address", wifiList.get(i).BSSID);
+                    tower.put("ssid", wifiList.get(i).SSID);
+                    tower.put("signal_strength", wifiList.get(i).level);
+                    sb.append(tower.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        return sb.toString();
+    }
     public String getLocationWifi(){
 
         /** 采用Android默认的HttpClient */
