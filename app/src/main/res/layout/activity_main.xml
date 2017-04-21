@@ -7,6 +7,18 @@
     android:fitsSystemWindows="true"
     tools:context="com.example.uplusplus.location.MainActivity">
 
-    <include layout="@layout/content_main" />
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+            <include layout="@layout/content_main" />
+        </LinearLayout>
+    </ScrollView>
 
 </android.widget.LinearLayout>

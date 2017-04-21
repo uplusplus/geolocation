@@ -17,7 +17,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/tv_wifi_info"
         android:layout_alignParentBottom="true"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+       />
 
     <TextView
         android:layout_width="wrap_content"
@@ -29,8 +30,22 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Gooooooo"
+        android:text="启动扫描"
         android:id="@+id/btn_update"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="复制"
+        android:id="@+id/btn_copy"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="注入"
+        android:id="@+id/btn_hack"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true" />
 </LinearLayout>

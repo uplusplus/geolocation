@@ -3,10 +3,16 @@ package com.example.uplusplus.location;
 /**
  * Created by uplusplus on 2017/4/9.
  */
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.List;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.wifi.ScanResult;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.util.Log;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -19,20 +25,23 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.IntentFilter;
-import android.net.wifi.ScanResult;
-import android.net.wifi.WifiManager;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Method;
+import java.util.List;
 
 public class WifiLocationManager {
-
+    private static final  String TAG = "WifiLocationManager";
     private Context mContext;
     private WifiManager wifiManager;
+    ConnectivityManager connectivityManager;
 
     public WifiLocationManager(Context context){
         mContext = context;
         wifiManager = (WifiManager) mContext.getSystemService(Context.WIFI_SERVICE);
+        connectivityManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
     }
 
     public void getLocation(BroadcastReceiver receiver){
@@ -66,7 +75,9 @@ public class WifiLocationManager {
 
     public String getWifiInfo(){
             List<ScanResult> wifiList = getWifiList();
+
             StringBuilder sb = new StringBuilder();
+            sb.append("\n附近WIFI信号:\n");
             for (int i = 0; i < wifiList.size(); i++) {
                 JSONObject tower = new JSONObject();
                 try {
@@ -80,6 +91,108 @@ public class WifiLocationManager {
             }
         return sb.toString();
     }
+
+    public static String toAscii(String str) {
+        String result = null;
+        try {
+            result = new String(str.getBytes("UTF-8"), "iso-8859-1");
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    Method set_ScanResults;
+    public  boolean setScanResults(String[][] list){
+        if(set_ScanResults == null){
+            Class<?> imclass = wifiManager.getClass();
+            try {
+                set_ScanResults = imclass.getMethod("setScanResults",  new Class[]{String[][].class});
+            } catch (Exception e) {
+                Log.e(TAG,  "Unsupport system.");
+                return false;
+            }
+        }
+
+        try {
+            if(set_ScanResults != null)
+            {
+                for(int i=0; i<list.length; i++){
+                    Log.i(TAG, list[i][1]);
+                    list[i][1] = toAscii( list[i][1] );
+                    Log.i(TAG, list[i][1]);
+                }
+
+                set_ScanResults.invoke(wifiManager, new Object[]{list});
+            }
+        } catch (Exception e) {
+            Log.e(TAG,  "Unsupport system.");
+            return false;
+        }
+
+        return true;
+    }
+
+
+    public String getCurrentWifi(){
+        StringBuilder sb = new StringBuilder();
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        sb.append("当前连接wifi：\n"+wifiInfo.toString());
+        return sb.toString();
+    }
+
+    Method set_current_wifi;
+    public  boolean setCurrrentWifi(String ssid, String bssid, String mac){
+        if(set_current_wifi == null){
+            Class<?> imclass = wifiManager.getClass();
+            try {
+                set_current_wifi = imclass.getMethod("setConnectionInfo", String.class, String.class, String.class);
+            } catch (Exception e) {
+                Log.e(TAG,  "Unsupport system.");
+                return false;
+            }
+        }
+
+        try {
+            if(set_current_wifi != null)
+            {
+                String utf_ssid = toAscii(ssid);
+                set_current_wifi.invoke(wifiManager, utf_ssid, bssid, mac);
+            }
+        } catch (Exception e) {
+            Log.e(TAG,  "Unsupport system.");
+            return false;
+        }
+
+        return true;
+    }
+
+    Method setActiveNetworkInfo;
+    public boolean setNetworkInfo(int type, int subtype, String typeName, String subtypeName, String extraInfo){
+        if(setActiveNetworkInfo == null){
+            Class<?> imclass = connectivityManager.getClass();
+            try {
+                setActiveNetworkInfo = imclass.getMethod("setActiveNetworkInfo", int.class, int.class, String.class, String.class, String.class);
+            } catch (Exception e) {
+                Log.e(TAG,  "Unsupport system.");
+                return false;
+            }
+        }
+
+        if(setActiveNetworkInfo != null)
+        {
+            try {
+                setActiveNetworkInfo.invoke(connectivityManager, type, subtype, typeName, subtypeName, extraInfo);
+            } catch (Exception e) {
+                Log.e(TAG,  "Unsupport system.");
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public String getLocationWifi(){
 
         /** 采用Android默认的HttpClient */
@@ -140,5 +253,54 @@ public class WifiLocationManager {
             client = null;
         }
         return null;
+    }
+
+
+    /**
+     * 判断网络是否可用
+     * @param
+     * @return
+     */
+    public  boolean isNetworkAvaliable(){
+        NetworkInfo networkinfo = connectivityManager.getActiveNetworkInfo();
+        return !(networkinfo == null || !networkinfo.isAvailable());
+    }
+
+    /**
+     * 判断网络类型 wifi  3G
+     *
+     * @param
+     * @return
+     */
+    public  boolean isWifiNetwrokType() {
+        NetworkInfo info = connectivityManager.getActiveNetworkInfo();
+
+        if (info != null && info.isAvailable()) {
+            if (info.getTypeName().equalsIgnoreCase("wifi")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static String type2String(int type){
+        switch (type){
+            case        ConnectivityManager.TYPE_MOBILE: return "MOBILE";
+            case        ConnectivityManager.TYPE_WIFI: return "WIFI";
+            case        ConnectivityManager.TYPE_WIMAX: return "WIMAX";
+            case        ConnectivityManager.TYPE_ETHERNET: return "ETHERNET";
+            case        ConnectivityManager.TYPE_BLUETOOTH: return "BLUETOOTH";
+            default: return "Unkown";
+        }
+    }
+
+    public String getCurrrentNetworkInfo(){
+        StringBuilder sb = new StringBuilder();
+        NetworkInfo info = connectivityManager.getActiveNetworkInfo();
+        if(info != null)
+            sb.append("Net Type:" + type2String(info.getType()) + "\n" + info.toString());
+        else
+            sb.append("Not connected.");
+        return  sb.toString();
     }
 }

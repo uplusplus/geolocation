@@ -3,8 +3,7 @@ package com.example.uplusplus.location;
 /**
  * Created by uplusplus on 2017/4/9.
  */
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import android.util.Log;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -14,11 +13,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.util.Log;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 public class Util {
     //log的标签
@@ -90,36 +86,5 @@ public class Util {
         }
 
         return resultString;
-    }
-
-    /**
-     * 判断网络是否可用
-     * @param context
-     * @return
-     */
-    public static boolean isNetworkAvaliable(Context context){
-        ConnectivityManager manager = (ConnectivityManager) (context
-                .getSystemService(Context.CONNECTIVITY_SERVICE));
-        NetworkInfo networkinfo = manager.getActiveNetworkInfo();
-        return !(networkinfo == null || !networkinfo.isAvailable());
-    }
-
-    /**
-     * 判断网络类型 wifi  3G
-     *
-     * @param context
-     * @return
-     */
-    public static  boolean isWifiNetwrokType(Context context) {
-        ConnectivityManager connectivityManager = (ConnectivityManager) context
-                .getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo info = connectivityManager.getActiveNetworkInfo();
-
-        if (info != null && info.isAvailable()) {
-            if (info.getTypeName().equalsIgnoreCase("wifi")) {
-                return true;
-            }
-        }
-        return false;
     }
 }
